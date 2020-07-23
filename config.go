@@ -17,7 +17,7 @@ type database struct {
 	Blog_text_col string
 }
 
-var Config tomlConfig
+var Config *tomlConfig
 
 func init() {
 	if _, err := toml.DecodeFile("config.toml", &Config); err != nil {
@@ -26,3 +26,10 @@ func init() {
 	log.Println(Config)
 
 }
+
+// func GetConfig() *tomlConfig {
+// 	if Config == nil {
+// 		praseConfig()
+// 	}
+// 	return Config
+// }
