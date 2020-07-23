@@ -1,0 +1,14 @@
+{
+    tittle: string              文章标题
+    update_time: time_stamp     创建时间
+    create_time:time_stamp      更新时间
+    content: string             文章内容
+    view_count:int              查看总次数
+    category: []                分类
+    author：string              作者
+}
+
+
+{
+    
+}
