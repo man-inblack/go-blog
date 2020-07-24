@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gomarkdown/markdown"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -24,7 +25,7 @@ type text struct {
 	Category   []string `bson:"category,omitempty"`
 	Author     string   `bson:"author,omitempty"`
 	ID         string   `bson:"_id"`
-	IsDelete   bool     `bson:"isDelete,omitempty"`
+	// IsDelete   bool     `bson:"isDelete,omitempty"`
 }
 
 type textList struct {
@@ -71,6 +72,7 @@ func getTextByID(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	result.Content = string(markdown.ToHTML([]byte(result.Content), nil, nil))
 	c.JSON(200, result)
 }
 
