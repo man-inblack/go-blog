@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type IndexDoc struct {
+type text struct {
 	Title      string   `bson:"title,omitempty"`
 	UpdateTime int      `bson:"updateTime,omitempty"`
 	CreateTime int      `bson:"createTime,omitempty"`
@@ -21,20 +24,28 @@ type IndexDoc struct {
 	Category   []string `bson:"category,omitempty"`
 	Author     string   `bson:"author,omitempty"`
 	ID         string   `bson:"_id"`
+	IsDelete   bool     `bson:"isDelete,omitempty"`
+}
+
+type textList struct {
+	Page     int64
+	PageSize int64
+	Total    int64
+	Data     []text
 }
 
 func index(c *gin.Context) {
 
 	dbClient := GetClient()
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{"createTime", -1}})
+	findOptions.SetSort(bson.M{"createTime": -1})
 	findOptions.SetLimit(5)
 	cTest1 := dbClient.Database(Config.DB.Blog_db).Collection(Config.DB.Blog_text_col)
 	cursor, _ := cTest1.Find(context.TODO(), bson.M{}, findOptions)
 
-	var doc []IndexDoc
+	var doc []text
 	for cursor.Next(context.TODO()) {
-		var temp IndexDoc
+		var temp text
 		err := cursor.Decode(&temp)
 		if err != nil {
 			log.Fatal(err)
@@ -43,9 +54,55 @@ func index(c *gin.Context) {
 
 	}
 
-	c.IndentedJSON(200, doc)
+	c.JSON(200, doc)
 	fmt.Println(doc)
 
+}
+
+func getTextByID(c *gin.Context) {
+	textID, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbClient := GetClient()
+	blogTextClo := dbClient.Database(Config.DB.Blog_db).Collection(Config.DB.Blog_text_col)
+	var result text
+	err = blogTextClo.FindOne(context.TODO(), bson.M{"_id": textID}).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.JSON(200, result)
+}
+
+func getTextList(c *gin.Context) {
+
+	isPage := c.DefaultQuery("is_page", "true") == "true"
+	page, _ := strconv.ParseInt(c.DefaultQuery("page", "1"), 10, 64)
+	pageSize, _ := strconv.ParseInt(c.DefaultQuery("page_size", "10"), 10, 64)
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.M{"createTime": -1})
+	if isPage {
+		findOptions.SetSkip((page - 1) * pageSize)
+		findOptions.SetLimit(pageSize)
+	}
+	dbClient := GetClient()
+	cTest1 := dbClient.Database(Config.DB.Blog_db).Collection(Config.DB.Blog_text_col)
+	cursor, _ := cTest1.Find(context.TODO(), bson.M{"isDelete": false}, findOptions)
+	textCount, _ := cTest1.CountDocuments(context.TODO(), bson.M{"isDelete": false})
+	var doc []text
+	for cursor.Next(context.TODO()) {
+		var temp text
+		err := cursor.Decode(&temp)
+		if err != nil {
+			log.Fatal(err)
+		}
+		doc = append(doc, temp)
+
+	}
+	result := textList{page, pageSize, textCount, doc}
+	c.JSON(200, result)
+	fmt.Println(result)
 }
 
 func home(w http.ResponseWriter, r *http.Request) {

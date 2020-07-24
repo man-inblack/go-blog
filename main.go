@@ -11,6 +11,8 @@ func main() {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 	r.GET("/", index)
+	r.GET("/blog/:id", getTextByID)
+	r.GET("/blog", getTextList)
 
 	r.Run(":8086")
 }

@@ -11,4 +11,5 @@ type blogText struct {
 	Category   []string           `bson:"category,omitempty"`
 	Author     string             `bson:"author,omitempty"`
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	IsDelete   bool               `bson: "IsDelete,omitempty"`
 }
