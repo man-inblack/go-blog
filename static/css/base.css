@@ -1,0 +1,21 @@
+body { 
+    padding-top: 50px;
+
+}
+div.main{
+    padding-top: 20px;
+}
+
+div.jumbotron {
+    background-image: url(/images/background.jpg); 
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity:0.6; 
+    
+}
+
+img {
+
+}
+
+   

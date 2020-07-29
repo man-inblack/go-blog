@@ -51,6 +51,7 @@ func index(c *gin.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		temp.Content = string(markdown.ToHTML([]byte(temp.Content), nil, nil))
 		doc = append(doc, temp)
 
 	}
