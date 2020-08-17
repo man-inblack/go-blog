@@ -108,6 +108,11 @@ func getTextList(c *gin.Context) {
 	fmt.Println(result)
 }
 
+func insertBlogText(c *gin.Context) {
+	
+}
+
+
 func home(w http.ResponseWriter, r *http.Request) {
 	dbClient := GetClient()
 	if r.Method == "GET" {
